@@ -6,6 +6,19 @@ const cors = require('cors');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Blog = require('./models/blog');
+const blogsRouter = require('./controllers/blogs');
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+const mongoUrl = process.env.FS18_PART4_MLAB_DB;
+mongoose
+  .connect(mongoUrl)
+  .then( () => {
+    console.log('connected to database', process.env.FS18_PART4_MLAB_DB)
+  })
+  .catch( err => {
+    console.log(err)
+  });
 
 morgan.token('body', function (req, res) {
   let body = req.body ? req.body : {};
@@ -24,33 +37,7 @@ app.use(morgan(function (tokens, req, res) {
 
 app.use(cors());
 app.use(bodyParser.json());
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-const mongoUrl = process.env.FS18_PART4_MLAB_DB;
-mongoose.connect(mongoUrl);
-
-app.get('/api/blogs', (request, response) => {
-  Blog
-    .find({})
-    .then(blogs => {
-      const result = blogs.map((b) => Blog.formatBlog(b));
-      response.json(result)
-    })
-    .catch(error => {
-      console.log(error);
-    });
-});
-
-app.post('/api/blogs', (request, response) => {
-  const blog = new Blog(request.body)
-
-  blog
-    .save()
-    .then(result => {
-      response.status(201).json(result)
-    });
-});
+app.use('/api/blogs', blogsRouter);
 
 const PORT = 3003
 app.listen(PORT, () => {
