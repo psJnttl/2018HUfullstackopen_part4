@@ -1,11 +1,5 @@
 const mongoose = require('mongoose')
 
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-const mongoUrl = process.env.FS18_PART4_MLAB_DB;
-mongoose.connect(mongoUrl)
-
 const Blogschema = new mongoose.Schema({
   title: String,
   author: String,
