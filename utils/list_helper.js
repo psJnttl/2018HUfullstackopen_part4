@@ -15,8 +15,19 @@ const total_likes = (blogs) => {
   return sum;
 }
 
+const favorite_blog = (blogs) => {
+  if (!blogs || blogs.length === 0) {
+    return null;
+  }
+  const copyBlogs = blogs.map(b => b);
+  const likes = copyBlogs.sort((a, b) => {
+    return b.likes - a.likes;
+  });
+  return likes[0];
+}
 
 module.exports = {
   dummy,
-  total_likes
+  total_likes,
+  favorite_blog
 }
