@@ -1,5 +1,6 @@
-const total_likes = require('../utils/list_helper').total_likes;
-const favorite_blog = require('../utils/list_helper').favorite_blog;
+const totalLikes = require('../utils/list_helper').totalLikes;
+const favoriteBlog = require('../utils/list_helper').favoriteBlog;
+const mostBlogs = require('../utils/list_helper').mostBlogs;
 
 const blogs = [
   {
@@ -54,32 +55,47 @@ const blogs = [
 
 describe('total likes', () => {
   test('empty array equals 0', () => {
-    const sum = total_likes([]);
+    const sum = totalLikes([]);
     expect(sum).toBe(0);
   });
 
   test('null array equals 0', () => {
-    const sum = total_likes(null);
+    const sum = totalLikes(null);
     expect(sum).toBe(0);
   });
 
   test('Six blogs likes sum 36', () => {
-    const sum = total_likes(blogs);
+    const sum = totalLikes(blogs);
     expect(sum).toBe(36);
   });
 });
 
 describe('favorite blog', () => {
   test('empty array equals null', () => {
-    const fav = favorite_blog([]);
+    const fav = favoriteBlog([]);
     expect(fav).toBe(null);
   });
   test('null array equals null', () => {
-    const fav = favorite_blog(null);
+    const fav = favoriteBlog(null);
     expect(fav).toBe(null);
   });
   test('array of blogs yields Dijkstra', () => {
-    const fav = favorite_blog(blogs);
+    const fav = favoriteBlog(blogs);
     expect(fav).toEqual(blogs[2]);
+  });
+});
+
+describe('most blogs', () => {
+  test('empty array equals null', () => {
+    const most = mostBlogs([]);
+    expect(most).toBe(null);
+  });
+  test('null array equals null', () => {
+    const most = mostBlogs(null);
+    expect(most).toBe(null);
+  });
+  test('Robert C. Martin has the most blogs.', () => {
+    const most = mostBlogs(blogs);
+    expect(most).toEqual({ author: 'Robert C. Martin', blogs: 3 });
   });
 });

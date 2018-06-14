@@ -2,7 +2,7 @@ const dummy = (blogs) => {
   return 1;
 }
 
-const total_likes = (blogs) => {
+const totalLikes = (blogs) => {
   if (!blogs || blogs.length === 0) {
     return 0;
   }
@@ -15,7 +15,7 @@ const total_likes = (blogs) => {
   return sum;
 }
 
-const favorite_blog = (blogs) => {
+const favoriteBlog = (blogs) => {
   if (!blogs || blogs.length === 0) {
     return null;
   }
@@ -26,8 +26,32 @@ const favorite_blog = (blogs) => {
   return likes[0];
 }
 
+const mostBlogs = (blogs) => {
+  if (!blogs || blogs.length === 0) {
+    return null;
+  }
+  let authors = [];
+  for (let i = 0; i < blogs.length; i++) {
+    let author = blogs[i].author;
+    let hit = authors.find((a) => {
+      return author === a.author;
+    });
+    if (hit) {
+      hit.blogs += 1;
+    }
+    else {
+      authors.push({author: blogs[i].author, blogs: 1});
+    }
+  }
+  authors.sort((a, b) => {
+    return b.blogs - a.blogs;
+  });
+  return authors[0];
+}
+
 module.exports = {
   dummy,
-  total_likes,
-  favorite_blog
+  totalLikes,
+  favoriteBlog,
+  mostBlogs
 }
