@@ -1,6 +1,7 @@
 const totalLikes = require('../utils/list_helper').totalLikes;
 const favoriteBlog = require('../utils/list_helper').favoriteBlog;
 const mostBlogs = require('../utils/list_helper').mostBlogs;
+const mostLikes = require('../utils/list_helper').mostLikes;
 
 const blogs = [
   {
@@ -97,5 +98,20 @@ describe('most blogs', () => {
   test('Robert C. Martin has the most blogs.', () => {
     const most = mostBlogs(blogs);
     expect(most).toEqual({ author: 'Robert C. Martin', blogs: 3 });
+  });
+});
+
+describe('most likes', () =>{
+  test('empty array equals null', () => {
+    const likes = mostLikes([]);
+    expect(likes).toBe(null);
+  });
+  test('null array equals null', () => {
+    const likes = mostLikes(null);
+    expect(likes).toBe(null);
+  });
+  test('Edsger W. Dijkstra has most likes', () => {
+    const likes = mostLikes(blogs);
+    expect(likes).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 });
   });
 });
