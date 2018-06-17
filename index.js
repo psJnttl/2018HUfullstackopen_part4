@@ -7,17 +7,15 @@ const middleware = require('./utils/middleware');
 const mongoose = require('mongoose');
 const Blog = require('./models/blog');
 const blogsRouter = require('./controllers/blogs');
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
-const mongoUrl = process.env.FS18_PART4_MLAB_DB;
+const config = require('./utils/config');
+
 mongoose
-  .connect(mongoUrl)
+  .connect(config.mongoUrl)
   .then( () => {
-    console.log('connected to database', process.env.FS18_PART4_MLAB_DB)
+    console.log('connected to database', config.mongoUrl);
   })
   .catch( err => {
-    console.log(err)
+    console.log(err);
   });
 
 app.use(middleware.mLogger);
@@ -25,7 +23,17 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use('/api/blogs', blogsRouter);
 app.use(middleware.error);
-const PORT = 3003
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+
+const server = http.createServer(app);
+server.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
+});
+
+server.on('close', () => {
+  mongoose.connection.close();
+});
+
+module.exports = {
+  app,
+  server
+}
