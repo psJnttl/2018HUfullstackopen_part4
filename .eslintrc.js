@@ -4,6 +4,7 @@ module.exports = {
         "node": true,
         "jest": true
     },
+    "parser": "babel-eslint",
     "extends": "eslint:recommended",
     "rules": {
         "indent": [
@@ -20,7 +21,7 @@ module.exports = {
         ],
         "semi": [
             "error",
-            "never"
+            "always"
         ]
     },
     "parserOptions": {

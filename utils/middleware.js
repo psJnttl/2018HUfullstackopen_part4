@@ -12,11 +12,11 @@ const mLogger = morgan(function (tokens, req, res) {
     tokens.body(req, res),
     'Status:', tokens.status(req, res), '-',
     tokens['response-time'](req, res), 'ms'
-  ].join(' ')
+  ].join(' ');
 });
 
 const error = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
+  response.status(404).send({ error: 'unknown endpoint' });
+};
 
 module.exports = {mLogger, morgan, error};

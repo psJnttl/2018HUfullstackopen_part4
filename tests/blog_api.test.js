@@ -5,22 +5,22 @@ const Blog = require('../models/blog');
 
 const initialBlogs = [
   {
-    "title": "Tekoäly on jaksaa pidempään kuin sinä.",
-    "author": "Teemu Lesonen",
-    "url": "http://127.0.0.1/",
-    "likes": 0
+    'title': 'Tekoäly on jaksaa pidempään kuin sinä.',
+    'author': 'Teemu Lesonen',
+    'url': 'http://127.0.0.1/',
+    'likes': 0
   },
   {
-    "title": "Tunnista tekotunteet.",
-    "author": "Saija Nairanen",
-    "url": "http://127.0.0.1/",
-    "likes": 0
+    'title': 'Tunnista tekotunteet.',
+    'author': 'Saija Nairanen',
+    'url': 'http://127.0.0.1/',
+    'likes': 0
   },
   {
-    "title": "Miten pääsen eroon teko-oppimisesta.",
-    "author": "Henri Hera-Keirinen",
-    "url": "http://127.0.0.1/",
-    "likes": 0
+    'title': 'Miten pääsen eroon teko-oppimisesta.',
+    'author': 'Henri Hera-Keirinen',
+    'url': 'http://127.0.0.1/',
+    'likes': 0
   },
 ];
 
@@ -44,12 +44,12 @@ describe('GET /api/blogs', () => {
     const response = await api
       .get('/api/blogs');
 
-    expect(response.body.length).toBe(initialBlogs.length)
+    expect(response.body.length).toBe(initialBlogs.length);
   });
 
   test('there is a blog about emotions', async () => {
     const response = await api
-     .get('/api/blogs');
+      .get('/api/blogs');
     const titles = response.body.map((b) => {
       return b.title;
     });

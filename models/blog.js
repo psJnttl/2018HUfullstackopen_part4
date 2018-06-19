@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const Blogschema = new mongoose.Schema({
   title: String,
@@ -14,9 +14,9 @@ Blogschema.statics.formatBlog = (blog) => {
     author: blog.author,
     url: blog.url,
     likes: blog.likes
-  }
-}
+  };
+};
 
 const Blog = mongoose.model('Blog', Blogschema);
 
-module.exports = Blog
+module.exports = Blog;
