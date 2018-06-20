@@ -110,33 +110,20 @@ describe('POST /api/blogs', () => {
     expect(blogsAfter.body.length).toEqual(initialBlogs.length);
   });
 
-  test('blog without author can not be added', async () => {
-    const newBlog = {
-      author: 'Hannes Rinta-Räyhä',
-      url: '127.0.0.1/',
-      likes: 0
-    };
-    await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(400);
-    const blogsAfter = await api.get('/api/blogs');
-    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
-  });
-
-  test('blog without url can not be added', async () => {
+  test('blog without likes defaults to 0', async () => {
     const newBlog = {
       title: 'Jalkapallon tekoanalyysit',
       author: 'Hannes Rinta-Räyhä',
-      likes: 0
+      url: '127.0.0.1/',
     };
-    await api
+    const result = await api
       .post('/api/blogs')
       .send(newBlog)
-      .expect(400);
-    const blogsAfter = await api.get('/api/blogs');
-    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+    expect(result.body.likes).toEqual(0);
   });
+
 });
 
 afterAll(() => {

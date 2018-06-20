@@ -18,6 +18,9 @@ blogsRouter.post('/', async (request, response) => {
     if (!blog.title || !blog.author || !blog.url) {
       return response.status(400).send({error: 'title, author or url missing'});
     }
+    if (!blog.likes) {
+      blog.likes = 0;
+    }
     const resultFromServer = await blog.save();
     const result = Blog.formatBlog(resultFromServer);
     response.status(201).json(result);
