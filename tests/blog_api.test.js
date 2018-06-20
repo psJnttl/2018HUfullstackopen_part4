@@ -24,15 +24,17 @@ const initialBlogs = [
   },
 ];
 
-beforeAll(async () => {
-  await Blog.remove({});
-
-  const blogObjects = initialBlogs.map(b => new Blog(b));
-  const promiseArray = blogObjects.map(b => b.save());
-  await Promise.all(promiseArray);
-});
 
 describe('GET /api/blogs', () => {
+
+  beforeAll(async () => {
+    await Blog.remove({});
+
+    const blogObjects = initialBlogs.map(b => new Blog(b));
+    const promiseArray = blogObjects.map(b => b.save());
+    await Promise.all(promiseArray);
+  });
+
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -54,6 +56,86 @@ describe('GET /api/blogs', () => {
       return b.title;
     });
     expect(titles).toContain(initialBlogs[1].title);
+  });
+});
+
+describe('POST /api/blogs', () => {
+
+  beforeEach(async () => {
+    await Blog.remove({});
+    const blogObjects = initialBlogs.map(b => new Blog(b));
+    const promiseArray = blogObjects.map(b => b.save());
+    await Promise.all(promiseArray);
+  });
+
+  test('blog can be added', async () => {
+    const newBlog = {
+      title: 'Jalkapallon tekoanalyysit',
+      author: 'Hannes Rinta-Räyhä',
+      url: '127.0.0.1/',
+      likes: 0
+    };
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+    const blogsAfter = await api.get('/api/blogs');
+    const found = blogsAfter.body.find((b) => {
+      return b.title === newBlog.title;
+    });
+    expect(found.title).toEqual(newBlog.title);
+  });
+
+  test('blog without title can not be added', async () => {
+    const newBlog = {
+      title: 'Jalkapallon tekoanalyysit',
+      url: '127.0.0.1/',
+      likes: 0
+    };
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
+    let blogsAfter = await api.get('/api/blogs');
+    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
+
+    newBlog['author'] = 'Hannes Rinta-Räyhä';
+    delete newBlog['url'];
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
+    blogsAfter = await api.get('/api/blogs');
+    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
+  });
+
+  test('blog without author can not be added', async () => {
+    const newBlog = {
+      author: 'Hannes Rinta-Räyhä',
+      url: '127.0.0.1/',
+      likes: 0
+    };
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
+    const blogsAfter = await api.get('/api/blogs');
+    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
+  });
+
+  test('blog without url can not be added', async () => {
+    const newBlog = {
+      title: 'Jalkapallon tekoanalyysit',
+      author: 'Hannes Rinta-Räyhä',
+      likes: 0
+    };
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
+    const blogsAfter = await api.get('/api/blogs');
+    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
   });
 });
 
