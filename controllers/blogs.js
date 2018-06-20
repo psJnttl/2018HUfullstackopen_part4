@@ -12,16 +12,18 @@ blogsRouter.get('/', async(request, response) => {
   }
 });
 
-blogsRouter.post('/', (request, response) => {
-  const blog = new Blog(request.body);
-
-  blog
-    .save()
-    .then(result => {
-      response.status(201).json(result);
-    })
-    .catch(error => {
-      console.log(error);
-    });
+blogsRouter.post('/', async (request, response) => {
+  try {
+    const blog = new Blog(request.body);
+    if (!blog.title || !blog.author || !blog.url) {
+      return response.status(400).send({error: 'title, author or url missing'});
+    }
+    const resultFromServer = await blog.save();
+    const result = Blog.formatBlog(resultFromServer);
+    response.status(201).json(result);
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ error: 'server error' });
+  }
 });
 module.exports = blogsRouter;
