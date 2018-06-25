@@ -124,6 +124,20 @@ describe('POST /api/blogs', () => {
     expect(result.body.likes).toEqual(0);
   });
 
+  test('blog without title and URL can not be added', async () => {
+    const newBlog = {
+      author: 'Hannes Rinta-Räyhä',
+      likes: 0
+    };
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400);
+    blogsAfter = await api.get('/api/blogs');
+    expect(blogsAfter.body.length).toEqual(initialBlogs.length);
+
+  });
+
 });
 
 afterAll(() => {
