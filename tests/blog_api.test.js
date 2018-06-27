@@ -87,7 +87,7 @@ describe('POST /api/blogs', () => {
     expect(blogsAfterAdd.length).toEqual(blogsBeforeAdd.length);
     const found = blogsAfterAdd.find((b) => {
       return b.title === newBlog.title;
-    })
+    });
     expect(found).toEqual(undefined);
   });
 
@@ -119,6 +119,31 @@ describe('POST /api/blogs', () => {
     expect(blogsAfterAdd.length).toEqual(blogsBeforeAdd.length);
   });
 
+});
+
+describe('DELETE /api/blogs/:id', () => {
+  let addBlog;
+  beforeEach(async () => {
+    addBlog = new Blog({
+      'title': 'Teko-oppiminen, miten pääsen siitä eroon.',
+      'author': 'Teemu Lesonen',
+      'url': 'http://127.0.0.1/',
+      'likes': 0
+    });
+    await Blog.remove({});
+    await addBlog.save();
+  });
+  test('Can delete a blog', async() => {
+    await api.delete('/api/blogs/' + addBlog._id).expect(204);
+  });
+  test('Deleting non-existing blog returns 404.', async () => {
+    await Blog.remove({});
+    await api.delete('/api/blogs/' + addBlog._id).expect(404);
+  });
+  test('Deleting blog with faulty id returns 400.', async () => {
+    const dummyId = 0x123456;
+    await api.delete('/api/blogs/' + dummyId).expect(400);
+  });
 });
 
 afterAll(() => {

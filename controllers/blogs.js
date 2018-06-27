@@ -29,4 +29,26 @@ blogsRouter.post('/', async (request, response) => {
     response.status(500).send({ error: 'server error' });
   }
 });
+
+blogsRouter.delete('/:id', async(request, response) => {
+  console.log('DELETE: ', request.params.id);
+  try {
+    const status = await Blog.findByIdAndRemove(request.params.id);
+    if (status) {
+      response.status(204).end();
+    }
+    else {
+      response.status(404).end();
+    }
+  } catch (error) {
+    if (error.name === 'CastError' && error.path === '_id') {
+      response.status(400).send({ error: 'malformed id' });
+    }
+    else {
+      console.log(error);
+      response.status(500).send({ error: 'server error' });
+    }
+  }
+});
+
 module.exports = blogsRouter;
