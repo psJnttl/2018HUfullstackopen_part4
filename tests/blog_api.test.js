@@ -118,7 +118,6 @@ describe('POST /api/blogs', () => {
     const blogsAfterAdd = await getAllBlogs();
     expect(blogsAfterAdd.length).toEqual(blogsBeforeAdd.length);
   });
-
 });
 
 describe('DELETE /api/blogs/:id', () => {
@@ -133,19 +132,76 @@ describe('DELETE /api/blogs/:id', () => {
     await Blog.remove({});
     await addBlog.save();
   });
+
   test('Can delete a blog', async() => {
     await api.delete('/api/blogs/' + addBlog._id).expect(204);
   });
+
   test('Deleting non-existing blog returns 404.', async () => {
     await Blog.remove({});
     await api.delete('/api/blogs/' + addBlog._id).expect(404);
   });
+
   test('Deleting blog with faulty id returns 400.', async () => {
     const dummyId = 0x123456;
     await api.delete('/api/blogs/' + dummyId).expect(400);
   });
 });
 
+describe('PUT /api/blogs/:id', () => {
+  let modBlog = {
+    'title': 'Teko-oppiminen, miten hyödynnän sitä.',
+    'author': 'Hannu H. Moilanen',
+    'url': 'http://127.0.0.1/tekoopros',
+    'likes': 7
+  };
+  let addBlog;
+  beforeEach(async () => {
+    addBlog = new Blog({
+      'title': 'Teko-oppiminen, miten pääsen siitä eroon.',
+      'author': 'Teemu Lesonen',
+      'url': 'http://127.0.0.1/',
+      'likes': 0
+    });
+    await Blog.remove({});
+    await addBlog.save();
+  });
+
+  test('Can modify a blog', async() => {
+    const resultFromServer = await api.put('/api/blogs/' + addBlog._id).send(modBlog).expect(200);
+    expect(resultFromServer.body.title).toEqual(modBlog.title);
+    expect(resultFromServer.body.author).toEqual(modBlog.author);
+    expect(resultFromServer.body.url).toEqual(modBlog.url);
+    expect(resultFromServer.body.likes).toEqual(modBlog.likes);
+  });
+
+  test('Modify with incomplete data returns 400.', async() => {
+    const blog = Object.assign({}, modBlog);
+    delete blog['title'];
+    await api.put('/api/blogs/' + addBlog._id).send(blog).expect(400);
+    blog['title'] = 'Teko-oppiminen, miten pääsen siitä eroon.';
+    delete blog['author'];
+    await api.put('/api/blogs/' + addBlog._id).send(blog).expect(400);
+    blog['author'] = 'Teemu Lesonen';
+    delete blog['url'];
+    await api.put('/api/blogs/' + addBlog._id).send(blog).expect(400);
+    blog['url'] = 'http://127.0.0.1';
+    delete blog['likes'];
+    await api.put('/api/blogs/' + addBlog._id).send(blog).expect(400);
+  });
+
+  test('Modify with non-existing id returns 404', async() => {
+    await Blog.remove({});
+    const blog = Object.assign({}, modBlog);
+    await api.put('/api/blogs/' + addBlog._id).send(blog).expect(404);
+  });
+
+  test('Modify with invalid id returns 400', async() => {
+    const blog = Object.assign({}, modBlog);
+    const id = 0x123456;
+    await api.put('/api/blogs/' + id).send(blog).expect(400);
+  });
+});
 afterAll(() => {
   server.close();
 });

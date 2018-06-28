@@ -31,11 +31,43 @@ blogsRouter.post('/', async (request, response) => {
 });
 
 blogsRouter.delete('/:id', async(request, response) => {
-  console.log('DELETE: ', request.params.id);
   try {
     const status = await Blog.findByIdAndRemove(request.params.id);
     if (status) {
       response.status(204).end();
+    }
+    else {
+      response.status(404).end();
+    }
+  } catch (error) {
+    if (error.name === 'CastError' && error.path === '_id') {
+      response.status(400).send({ error: 'malformed id' });
+    }
+    else {
+      console.log(error);
+      response.status(500).send({ error: 'server error' });
+    }
+  }
+});
+
+blogsRouter.put('/:id', async(request, response) => {
+  const modBlog = {
+    'title': request.body.title,
+    'author': request.body.author,
+    'url': request.body.url,
+    'likes': request.body.likes
+  };
+  for (let attr in modBlog) {
+    if (!modBlog[attr]) {
+      return response.status(400).send({error: 'incomplete blog'});
+    }
+  }
+  const id = request.params.id;
+  try {
+    const status = await Blog.findByIdAndUpdate(id, modBlog, { new: true });
+    if (status) {
+      const result = Blog.formatBlog(status);
+      response.status(200).json(result);
     }
     else {
       response.status(404).end();
