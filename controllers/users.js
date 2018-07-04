@@ -4,16 +4,24 @@ const bcrypt = require('bcrypt');
 
 userRouter.post('/', async (request, response) => {
   try {
+    if (request.body.password && request.body.password.length < 3) {
+      return response.status(400).send({error: 'password length must be at least 3'});
+    }
+    const existingUser = await User.find({username: request.body.username});
+    if (existingUser.length > 0) {
+      return response.status(400).send({error: 'must be unique username'});
+    }
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(request.body.password, saltRounds);
     console.log('passwordHash: ', passwordHash);
     const user = new User({
       username: request.body.username,
       name: request.body.name,
-      adult: request.body.adult,
+      adult: request.body.adult ? request.body.adult : true,
       password: passwordHash
     });
     const resultFromServer = await user.save();
+    console.log(resultFromServer);
     const result = User.format(resultFromServer);
     response.status(201).json(result);
   } catch (error) {

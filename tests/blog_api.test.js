@@ -204,7 +204,7 @@ describe('PUT /api/blogs/:id', () => {
   });
 });
 
-describe.only('POST /api/users',  () => {
+describe('POST /api/users',  () => {
   beforeEach(async () => {
     await User.remove({});
     const userObjects = initialUsers.map(u => new User(u));
@@ -225,7 +225,6 @@ describe.only('POST /api/users',  () => {
       .send(newUser)
       .expect(201)
       .expect('Content-Type', /application\/json/);
-    console.log(result); // resultissa pitäisi olla vielä viesti, myös ylläolevassa
     const usersAfterAdd = await getAllUsers();
     const found = usersAfterAdd.find((b) => {
       return b.username === newUser.username;
@@ -246,9 +245,11 @@ describe.only('POST /api/users',  () => {
       .post('/api/users')
       .send(newUser)
       .expect(400);
+    expect(result.body.error).toEqual('password length must be at least 3');
     let usersAfterAdd = await getAllUsers();
     expect(usersBeforeAdd.length).toEqual(usersAfterAdd.length);
   });
+
   test('Non-unique username returns 400.', async () => {
     const usersBeforeAdd = await getAllUsers();
     const newUser = {
@@ -261,6 +262,7 @@ describe.only('POST /api/users',  () => {
       .post('/api/users')
       .send(newUser)
       .expect(400);
+    expect(result.body.error).toEqual('must be unique username');
     let usersAfterAdd = await getAllUsers();
     expect(usersBeforeAdd.length).toEqual(usersAfterAdd.length);
   });
@@ -283,6 +285,7 @@ describe.only('POST /api/users',  () => {
     });
     expect(added.adult).toEqual(true);
   });
+
 });
 
 afterAll(() => {
