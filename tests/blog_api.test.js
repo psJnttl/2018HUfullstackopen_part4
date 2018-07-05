@@ -220,7 +220,7 @@ describe('POST /api/users',  () => {
       password: '123',
       adult: true
     };
-    const result = await api
+    await api
       .post('/api/users')
       .send(newUser)
       .expect(201)

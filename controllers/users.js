@@ -13,7 +13,6 @@ userRouter.post('/', async (request, response) => {
     }
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(request.body.password, saltRounds);
-    console.log('passwordHash: ', passwordHash);
     const user = new User({
       username: request.body.username,
       name: request.body.name,
@@ -21,7 +20,6 @@ userRouter.post('/', async (request, response) => {
       password: passwordHash
     });
     const resultFromServer = await user.save();
-    console.log(resultFromServer);
     const result = User.format(resultFromServer);
     response.status(201).json(result);
   } catch (error) {
@@ -32,7 +30,7 @@ userRouter.post('/', async (request, response) => {
 
 userRouter.get('/', async(request, response) =>  {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).populate('blogs', {user:0, __v:0});
     const result = users.map((u) => User.format(u));
     response.json(result);
   } catch (error) {
