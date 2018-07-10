@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
 
 blogsRouter.get('/', async(request, response) => {
   try {
@@ -13,8 +14,26 @@ blogsRouter.get('/', async(request, response) => {
   }
 });
 
+const getTokenFromHeader = (request) => {
+  if(request.headers && request.headers.authorization) {
+    const auth = request.headers.authorization;
+    if (auth.toLowerCase().startsWith('bearer')) {
+      const token = request.headers.authorization.substr('bearer'.length+1);
+      return token;
+    }
+  }
+  return null;
+};
+
 blogsRouter.post('/', async (request, response) => {
   try {
+    const jwtToken = getTokenFromHeader(request);
+    if (!jwtToken) {
+      return response.status(401).send({error: 'token missing'});
+    }
+    const decodedJwtToken = jwt.verify(jwtToken, process.env.JSONWEBTOKEN_SECRET);
+    const author = await User.findById(decodedJwtToken.id);
+
     const blog = new Blog(request.body);
     if (!blog.title || !blog.author || !blog.url) {
       return response.status(400).send({error: 'title, author or url missing'});
@@ -22,16 +41,17 @@ blogsRouter.post('/', async (request, response) => {
     if (!blog.likes) {
       blog.likes = 0;
     }
-    const allUsers = await User.find({});
-    const tmpAuthor = allUsers[0];
-    blog.user = tmpAuthor._id;
+    blog.user = author._id;
     const resultFromServer = await blog.save();
-    tmpAuthor.blogs.push(resultFromServer._id);
-    await tmpAuthor.save();
+    author.blogs.push(resultFromServer._id);
+    await author.save();
     const result = Blog.formatBlog(resultFromServer);
     response.status(201).json(result);
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    if (err.name === 'JsonWebTokenError') {
+      return response.status(401).send({ error: err.message });
+    }
+    console.log(err.name);
     response.status(500).send({ error: 'server error' });
   }
 });
