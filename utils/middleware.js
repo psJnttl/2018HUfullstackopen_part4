@@ -19,4 +19,16 @@ const error = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
-module.exports = {mLogger, morgan, error};
+const tokenExtractor = (request, response, next) => {
+  request.token = null;
+  if(request.headers && request.headers.authorization) {
+    const auth = request.headers.authorization;
+    if (auth.toLowerCase().startsWith('bearer')) {
+      const token = request.headers.authorization.substr('bearer'.length+1);
+      request.token = token;
+    }
+  }
+  next();
+};
+
+module.exports = {mLogger, morgan, error, tokenExtractor};

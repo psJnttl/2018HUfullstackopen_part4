@@ -14,20 +14,9 @@ blogsRouter.get('/', async(request, response) => {
   }
 });
 
-const getTokenFromHeader = (request) => {
-  if(request.headers && request.headers.authorization) {
-    const auth = request.headers.authorization;
-    if (auth.toLowerCase().startsWith('bearer')) {
-      const token = request.headers.authorization.substr('bearer'.length+1);
-      return token;
-    }
-  }
-  return null;
-};
-
 blogsRouter.post('/', async (request, response) => {
   try {
-    const jwtToken = getTokenFromHeader(request);
+    const jwtToken = request.token;
     if (!jwtToken) {
       return response.status(401).send({error: 'token missing'});
     }
