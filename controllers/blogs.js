@@ -47,8 +47,27 @@ blogsRouter.post('/', async (request, response) => {
 
 blogsRouter.delete('/:id', async(request, response) => {
   try {
+    if (!request.token) {
+      return response.status(401).send({error: 'token missing'});
+    }
+    const decodedJwtToken = jwt.verify(request.token, process.env.JSONWEBTOKEN_SECRET);
+    const loggedUser = await User.findById(decodedJwtToken.id);
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) {
+      return response.status(404).send({error: 'so such document'});
+    }
+    const author = await User.findById(blog.user);
+    if (author._id.toString() !== loggedUser._id.toString() ) {
+      return response.status(401).send({error: 'can only delete own blogs'});
+    }
+    const blogsMinus1 = loggedUser.blogs.filter((bId) => {
+      return bId.toString() !== request.params.id;
+    });
+    loggedUser.blogs = blogsMinus1;
     const status = await Blog.findByIdAndRemove(request.params.id);
+
     if (status) {
+      await loggedUser.save();
       response.status(204).end();
     }
     else {
@@ -57,6 +76,9 @@ blogsRouter.delete('/:id', async(request, response) => {
   } catch (error) {
     if (error.name === 'CastError' && error.path === '_id') {
       response.status(400).send({ error: 'malformed id' });
+    }
+    else if (error.name === 'JsonWebTokenError') {
+      response.status(401).send({error: error.message});
     }
     else {
       console.log(error);
